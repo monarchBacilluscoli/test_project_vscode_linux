@@ -8,6 +8,7 @@
 #include <list>
 #include <algorithm>
 #include <functional>
+#include <numeric>
 
 #include "test_function.h"
 
@@ -120,13 +121,44 @@ public:
 
 int main(int argc, char *argv[])
 {
-    std::cout << -34 % 2 << std::endl;
-    std::cout << -33 % 2 << std::endl;
+    std::vector<int> vec = {1, 2, 3, 4, 5};
+    for (auto &i = vec.rbegin(); i != vec.rend(); ++i)
+    {
+        /* code */
+    }
 
-    std::vector<int> v = {1, 2, 2, 4};
+    uint32_t q = 300;
+    int q2;
+    q2 += q;
+    std::cout << q2 / 1 << std::endl;
+
+    int size = 10;
+    for (size_t i = 0; i < size; i++)
+    {
+        std::cout << i << std::endl;
+        size = 1;
+    }
+
+    std::cout << bool(-34 % 2) << std::endl;
+    std::cout << bool(680 % 2) << std::endl;
+    std::cout << bool(345 % 2) << std::endl;
+
+    std::vector<int> v = {15, 2, 2, 5, 2123, 114, 1, 15, 151, 51, 4343, 5, 6, 6, 1, 4};
+
+    int a = std::accumulate(v.begin(), v.end(), 0, [](int ini, int input) -> int {
+        return ini + input;
+    });
 
     test_function<test_sta_func_cla> ts;
     ts.call(test_sta_func_cla::test_func);
+    std::vector<int>::iterator it = v.begin();
+    std::advance(it, 6);
+    std::cout << std::distance(it, v.begin()) << ": " << *it << std::endl;
+    ts.test(v.begin() + 3, v.begin() + 11);
+    std::cout << std::distance(it, v.begin()) << ": " << *it << std::endl;
+
+    // std::cout << std::distance(v.begin(), v.end()) << std::endl;
+    // std::cout << std::distance(v.end(), v.begin()) << std::endl;
 
     Point2D t{1, 2};
     std::vector<Point2D> ps{{2, 3}, {4, 5}, {1.3f, 1.5f}, {1, 1}, {-2, 1}};
