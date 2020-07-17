@@ -9,57 +9,51 @@
 #include <algorithm>
 using namespace std;
 
-std::unordered_map<char, vector<string>> nums_to_letters{
-    {'2', {"a", "b", "c"}},
-    {'3', {"d", "e", "f"}},
-    {'4', {"g", "h", "i"}},
-    {'5', {"j", "k", "l"}},
-    {'6', {"m", "n", "o"}},
-    {'7', {"p", "q", "r", "s"}},
-    {'8', {"t", "u", "v"}},
-    {'9', {"w", "x", "y", "z"}},
+struct ListNode
+{
+    int val;
+    ListNode *next;
+    ListNode(int x) : val(x), next(NULL) {}
 };
 
-vector<string>
-letterCombinations(string digits)
+ListNode *removeNthFromEnd(ListNode *head, int n)
 {
-    if (digits.size() == 0)
+    if (!head->next)
     {
-        return vector<string>();
+        delete head;
+        return NULL;
     }
-    if (digits.size() == 1)
+    ListNode *p1 = head, *p2 = head;
+    for (int i = 0; i < n; ++i)
     {
-        return nums_to_letters[digits.front()];
-    }
-    else
-    {
-        std::vector<string> result{};
-        char t = digits.back();
-        digits.pop_back();
-        std::vector<string> result2 = letterCombinations(digits);
-        for (const string &c : nums_to_letters[t])
+        if (p2->next != NULL)
         {
-            for (const string &s : result2)
-            {
-                result.emplace_back(s + c);
-            }
+            p2 = p2->next;
         }
-        return result;
+        else // p2 == NULL
+        {
+            ListNode *delete_node = head;
+            head = head->next;
+            delete delete_node;
+            return head;
+        }
     }
+    while (p2->next)
+    {
+        p1 = p1->next;
+        p2 = p2->next;
+    }
+    ListNode *delete_node = p1->next;
+    p1->next = delete_node->next;
+    delete delete_node;
+    return head;
 }
 
 int main()
 {
-
-    std::vector<string> result = letterCombinations("23");
-    for (auto &&r : result)
-    {
-        for (auto &&i : r)
-        {
-            std::cout << i << '\t';
-        }
-        std::cout << std::endl;
-    }
-
+    ListNode *head = new ListNode(1);
+    head->next = new ListNode(2);
+    head->next->next = nullptr;
+    removeNthFromEnd(head, 2);
     return 0;
 }
