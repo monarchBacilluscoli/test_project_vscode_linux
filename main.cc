@@ -14,36 +14,40 @@
 using namespace std;
 
 //todo 用stack
-const std::unordered_map<char, char> braket_map{{')', '('}, {']', '['}, {'}', '{'}};
+std::vector<string> results;
 
-bool isValid(std::string s)
+void generateParenthesis_(std::string current, int left, int right) // 当前string， 剩余左括号，剩余右括号
 {
-    std::stack<char> brakets;
-    for (int i = s.size() - 1; i >= 0; --i)
+    if (left > right) //有右括号待填充
     {
-        if (!brakets.empty() && braket_map.find(brakets.top()) != braket_map.end() && s[i] == braket_map.at(brakets.top()))
-        {
-            brakets.pop();
-            s.pop_back();
-        }
-        else
-        {
-            brakets.push(s.back());
-            s.pop_back();
-        }
+        return;
     }
-    if (brakets.empty() && s.empty())
+    if (left > 0) // 可以放left
     {
-        return true;
+        generateParenthesis_(current + '(', left - 1, right);
     }
-    else
+    if (right > 0 && right > left) // 可以放right
     {
-        return false;
+        generateParenthesis_(current + ')', left, right - 1);
     }
+    if (left == 0 && right == 0)
+    {
+        results.push_back(current);
+    }
+}
+
+vector<string> generateParenthesis(int n)
+{
+    generateParenthesis_("", n, n);
+    return results;
 }
 
 int main()
 {
-    std::cout << isValid("([)]") << std::endl;
+    for (auto &&s : generateParenthesis(3))
+    {
+        std::cout << s << std::endl;
+    }
+
     return 0;
 }
