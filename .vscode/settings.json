@@ -43,6 +43,7 @@
         "functional": "cpp",
         "iterator": "cpp",
         "numeric": "cpp",
-        "list": "cpp"
+        "list": "cpp",
+        "random": "cpp"
     }
 }

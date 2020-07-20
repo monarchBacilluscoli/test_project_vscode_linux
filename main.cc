@@ -7,53 +7,43 @@
 #include <numeric>
 #include <limits>
 #include <algorithm>
+#include <random>
+#include <map>
+#include <stack>
+
 using namespace std;
 
-struct ListNode
-{
-    int val;
-    ListNode *next;
-    ListNode(int x) : val(x), next(NULL) {}
-};
+//todo 用stack
+const std::unordered_map<char, char> braket_map{{')', '('}, {']', '['}, {'}', '{'}};
 
-ListNode *removeNthFromEnd(ListNode *head, int n)
+bool isValid(std::string s)
 {
-    if (!head->next)
+    std::stack<char> brakets;
+    for (int i = s.size() - 1; i >= 0; --i)
     {
-        delete head;
-        return NULL;
-    }
-    ListNode *p1 = head, *p2 = head;
-    for (int i = 0; i < n; ++i)
-    {
-        if (p2->next != NULL)
+        if (!brakets.empty() && braket_map.find(brakets.top()) != braket_map.end() && s[i] == braket_map.at(brakets.top()))
         {
-            p2 = p2->next;
+            brakets.pop();
+            s.pop_back();
         }
-        else // p2 == NULL
+        else
         {
-            ListNode *delete_node = head;
-            head = head->next;
-            delete delete_node;
-            return head;
+            brakets.push(s.back());
+            s.pop_back();
         }
     }
-    while (p2->next)
+    if (brakets.empty() && s.empty())
     {
-        p1 = p1->next;
-        p2 = p2->next;
+        return true;
     }
-    ListNode *delete_node = p1->next;
-    p1->next = delete_node->next;
-    delete delete_node;
-    return head;
+    else
+    {
+        return false;
+    }
 }
 
 int main()
 {
-    ListNode *head = new ListNode(1);
-    head->next = new ListNode(2);
-    head->next->next = nullptr;
-    removeNthFromEnd(head, 2);
+    std::cout << isValid("([)]") << std::endl;
     return 0;
 }
