@@ -19,62 +19,41 @@ struct ListNode
     ListNode(int x) : val(x), next(NULL) {}
 };
 
-ListNode *swapPairs(ListNode *head)
+int divide(int dividend, int divisor)
 {
-    if (!head)
+    int op = ((dividend > 0 && divisor < 0) || (dividend < 0 && divisor > 0)) ? -1 : 1;
+    int sum = 0;
+    int times = 0;
+    dividend = dividend < 0 ? dividend : -dividend;
+    divisor = divisor < 0 ? divisor : -divisor;
+    while (sum > dividend)
     {
-        return nullptr;
-    }
-    if (!head->next)
-    {
-        return head;
-    }
-    vector<ListNode *> v1;
-    vector<ListNode *> v2;
-    ListNode *p = head;
-    for (int i = 0; p != NULL; ++i)
-    {
-        if (i % 2)
+        if (sum < numeric_limits<int>::min() - divisor)
         {
-            v2.push_back(p);
-            p = p->next;
+            return numeric_limits<int>::max();
         }
-        else
-        {
-            v1.push_back(p);
-            p = p->next;
-        }
+        sum += divisor;
+        ++times;
     }
-    for (int i = 0; i < v2.size(); ++i)
-    {
-        v2[i]->next = v1[i];
-        if (i + 1 < v2.size())
-            v1[i]->next = v2[i + 1];
-        else
-            v1[i]->next = NULL;
-    }
-    if (v1.size() > v2.size())
-    {
-        (*(v1.end() - 2))->next = *(v1.end() - 1);
-        *(v1.end() - 1) = NULL;
-    }
-    return v2[0];
+    return (times - 1) * op;
 }
 
 int main()
 {
-    ListNode *p = new ListNode(1);
-    p->next = new ListNode(2);
-    p->next->next = new ListNode(3);
+    // ListNode *p = new ListNode(1);
+    // p->next = new ListNode(2);
+    // p->next->next = new ListNode(3);
     // p->next->next->next = new ListNode(4);
 
-    p = swapPairs(p);
-    while (p)
-    {
-        std::cout << p->val << "\t";
-        p = p->next;
-    }
-    std::cout << std::endl;
+    std::cout << divide(-2147483648, -1) << std::endl;
+
+    // p = swapPairs(p);
+    // while (p)
+    // {
+    //     std::cout << p->val << "\t";
+    //     p = p->next;
+    // }
+    // std::cout << std::endl;
 
     return 0;
 }
