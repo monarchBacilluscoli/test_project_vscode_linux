@@ -4,14 +4,14 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "make the entire project",
+            "label": "make the entire project", // 编译链接整个工程
             "type": "shell",
-            "command": "make",
+            "command": "make", // 使用了make命令
             "args": [
-                "-j"
+                "-j" // 允许多线程编译
             ],
             "options": {
-                "cwd": "${cwd}/build"
+                "cwd": "${cwd}/build" // 在“当前工作路径”/build下执行make
             }
         }
     ]

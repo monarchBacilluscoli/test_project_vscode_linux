@@ -8,19 +8,12 @@
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/first_project",
-            "args": [
-                "0",
-                "0",
-                "4",
-                "6",
-                "-6",
-                "0",
-            ],
+            "program": "${workspaceFolder}/build/first_project",    // 编译好的待debug程序
+            "args": [], // 可输入运行参数
             "stopAtEntry": false,
-            "cwd": "${workspaceFolder}",
-            "environment": [],
-            "externalConsole": false,
+            "cwd": "${workspaceFolder}", // 当前工作路径（linux命令行命令之前显示的路径）
+            "environment": [], // 额外的环境变量
+            "externalConsole": false, //是否打开外部终端（在弹窗终端下调试）
             "MIMode": "gdb",
             "setupCommands": [
                 {
@@ -29,7 +22,7 @@
                     "ignoreFailures": true
                 }
             ],
-            "preLaunchTask": "make the entire project"
+            "preLaunchTask": "make the entire project" // 每次编译之前运行一次task.json之中label为"make the entire project"的task
         }
     ]
 }
