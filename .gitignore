@@ -1,5 +1,5 @@
 build
-*.in
+*.h.in
 
 # Prerequisites
 *.d
