@@ -10,6 +10,10 @@
 #include <random>
 #include <map>
 #include <stack>
+#include <unordered_set>
+#include <set>
+
+#include "test_function.h"
 
 using namespace std;
 // struct ListNode
@@ -19,53 +23,49 @@ using namespace std;
 //     ListNode(int x) : val(x), next(NULL) {}
 // };
 
-void nextPermutation(vector<int> &nums)
-{
-    if (nums.size() <= 1)
-    {
-        return;
-    }
-    int j = nums.size() - 2, k = nums.size() - 1; // 和与那个数最近的大于它的数交换
-    while (nums[j] > nums[k] && j >= 0)
-    {
-        --j;
-        --k;
-    }
 
-    if (j == -1)
+std::vector<std::unordered_set<char>> rows{9};
+std::vector<std::unordered_set<char>> columns{9};
+std::vector<std::unordered_set<char>> blocks{9};
+bool isValidSudoku(vector<vector<char>> &board)
+{
+    for (int i = 0; i < 9; ++i)
     {
-        int smallest_index = 0;
-        int temp = 0;
-        for (int i = 0; i < nums.size(); ++i)
+        for (int j = 0; j < 9; ++j)
         {
-            if (nums[i] < nums[smallest_index])
+            if (board[i][j] != '.')
             {
-                smallest_index = i;
+                char current = board[i][j];
+                if (rows[i].find(current) == rows[i].end())
+                {
+                    rows[i].insert(current);
+                }
+                else
+                {
+                    return false;
+                }
+
+                if (columns[j].find(current) == columns[j].end())
+                {
+                    columns[j].insert(current);
+                }
+                else
+                {
+                    return false;
+                }
+                int block_index = (i / 3) * 3 + j / 3;
+                if (blocks[block_index].find(current) == blocks[block_index].end())
+                {
+                    blocks[block_index].insert(current);
+                }
+                else
+                {
+                    return false;
+                }
             }
         }
-        temp = nums[smallest_index];
-        nums[smallest_index] = nums[j];
-        nums[j] = nums[smallest_index];
     }
-    else
-    {
-        int swap_index = j + 1;
-        int smallest = nums[swap_index] - nums[j];
-        for (int i = j + 1; i < nums.size(); ++i)
-        {
-            int diff = nums[i] - nums[j];
-            if (diff > 0 && diff < smallest)
-            {
-                swap_index = i;
-            }
-        }
-        std::iter_swap(nums.begin() + j, nums.begin() + swap_index);
-    }
-    //todo 从j之后，都要排序
-    for (int i = j; i < nums.size(); ++i)
-    {
-        std::iter_swap(nums.begin() + i + 1, min_element(nums.begin() + i + 1, nums.end()));
-    }
+    return true;
 }
 
 int main()
@@ -74,13 +74,25 @@ int main()
     // p->next = new ListNode(2);
     // p->next->next = new ListNode(3);
     // p->next->next->next = new ListNode(4);
-    std::vector<int> vec = {1, 2};
-    nextPermutation(vec);
+    std::vector<std::vector<char>> vec{
+        {'5', '3', '.', '.', '7', '.', '.', '.', '.'},
+        {'6', '.', '.', '1', '9', '5', '.', '.', '.'},
+        {'.', '9', '8', '.', '.', '.', '.', '6', '.'},
+        {'8', '.', '.', '.', '6', '.', '.', '.', '3'},
+        {'4', '.', '.', '8', '.', '3', '.', '.', '1'},
+        {'7', '.', '.', '.', '2', '.', '.', '.', '6'},
+        {'.', '6', '.', '.', '.', '.', '2', '8', '.'},
+        {'.', '.', '.', '4', '1', '9', '.', '.', '5'},
+        {'.', '.', '.', '.', '8', '.', '.', '7', '9'}};
+
+    std::cout << isValidSudoku(vec) << std::endl;
+
+    // std::cout << search(vec, 3) << std::endl;
 
     // p = swapPairs(p);
     // while (p)
     // {
-    //     std::cout << p->val << "\t";
+    //     std::cout << p->val << '\t';
     //     p = p->next;
     // }
     // std::cout << std::endl;

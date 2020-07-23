@@ -2,6 +2,17 @@
 #include <iostream>
 #include <algorithm>
 
+class test_construct
+{
+private:
+    bool m_trigger = false;
+    std::vector<int> m_vec;
+
+public:
+    test_construct(/* args */) : m_vec(m_trigger ? 100 : 1){}; // Can not init members in construct function's body
+    ~test_construct() = default;
+};
+
 class test_sta_func_cla
 {
 private:
@@ -13,6 +24,7 @@ public:
 int test_sta_func_cla::test_func(int a)
 {
     std::cout << a << std::endl;
+    return a;
 }
 
 template <class T>

@@ -44,6 +44,8 @@
         "iterator": "cpp",
         "numeric": "cpp",
         "list": "cpp",
-        "random": "cpp"
+        "random": "cpp",
+        "unordered_set": "cpp",
+        "set": "cpp"
     }
 }
