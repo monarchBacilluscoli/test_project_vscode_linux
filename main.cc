@@ -16,57 +16,43 @@
 #include "test_function.h"
 
 using namespace std;
-// struct ListNode
-// {
-//     int val;
-//     ListNode *next;
-//     ListNode(int x) : val(x), next(NULL) {}
-// };
-
-
-std::vector<std::unordered_set<char>> rows{9};
-std::vector<std::unordered_set<char>> columns{9};
-std::vector<std::unordered_set<char>> blocks{9};
-bool isValidSudoku(vector<vector<char>> &board)
+struct ListNode
 {
-    for (int i = 0; i < 9; ++i)
-    {
-        for (int j = 0; j < 9; ++j)
-        {
-            if (board[i][j] != '.')
-            {
-                char current = board[i][j];
-                if (rows[i].find(current) == rows[i].end())
-                {
-                    rows[i].insert(current);
-                }
-                else
-                {
-                    return false;
-                }
+    int val;
+    ListNode *next;
+    ListNode(int x) : val(x), next(NULL) {}
+};
 
-                if (columns[j].find(current) == columns[j].end())
-                {
-                    columns[j].insert(current);
-                }
-                else
-                {
-                    return false;
-                }
-                int block_index = (i / 3) * 3 + j / 3;
-                if (blocks[block_index].find(current) == blocks[block_index].end())
-                {
-                    blocks[block_index].insert(current);
-                }
-                else
-                {
-                    return false;
-                }
-            }
+ListNode *mergeKLists(std::vector<ListNode *> &lists)
+{
+    std::multimap<int, ListNode *> sorted_map;
+    ListNode *result = new ListNode(0), *p = result;
+    for (int i = 0; i < lists.size(); ++i)
+    {
+        if (lists[i])
+        {
+            sorted_map.insert({lists[i]->val, lists[i]});
         }
     }
-    return true;
+
+    while (!sorted_map.empty())
+    {
+        //todo 出一个
+        p->next = sorted_map.begin()->second;
+        sorted_map.erase(sorted_map.begin());
+        p = p->next;
+        //todo 进一个
+        if (p->next)
+        {
+            sorted_map.insert({p->next->val, p->next});
+        }
+    }
+    return result;
 }
+
+// std::vector<vector<int>> combinationSum_(const std::unordered_set<int> &candies, int target)
+// {
+// }
 
 int main()
 {
@@ -74,21 +60,23 @@ int main()
     // p->next = new ListNode(2);
     // p->next->next = new ListNode(3);
     // p->next->next->next = new ListNode(4);
-    std::vector<std::vector<char>> vec{
-        {'5', '3', '.', '.', '7', '.', '.', '.', '.'},
-        {'6', '.', '.', '1', '9', '5', '.', '.', '.'},
-        {'.', '9', '8', '.', '.', '.', '.', '6', '.'},
-        {'8', '.', '.', '.', '6', '.', '.', '.', '3'},
-        {'4', '.', '.', '8', '.', '3', '.', '.', '1'},
-        {'7', '.', '.', '.', '2', '.', '.', '.', '6'},
-        {'.', '6', '.', '.', '.', '.', '2', '8', '.'},
-        {'.', '.', '.', '4', '1', '9', '.', '.', '5'},
-        {'.', '.', '.', '.', '8', '.', '.', '7', '9'}};
 
-    std::cout << isValidSudoku(vec) << std::endl;
+    ListNode *n1 = new ListNode(1);
+    n1->next = new ListNode(4);
+    n1->next->next = new ListNode(5);
 
+    ListNode *n2 = new ListNode(1);
+    n2->next = new ListNode(3);
+    n2->next->next = new ListNode(4);
     // std::cout << search(vec, 3) << std::endl;
+    ListNode *n3 = new ListNode(2);
+    n3->next = new ListNode(6);
 
+    std::vector<ListNode *> vec = {n1,
+                                   n2,
+                                   n3};
+
+    ListNode *a = mergeKLists(vec);
     // p = swapPairs(p);
     // while (p)
     // {
