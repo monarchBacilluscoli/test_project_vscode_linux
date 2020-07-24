@@ -47,5 +47,6 @@
         "random": "cpp",
         "unordered_set": "cpp",
         "set": "cpp"
-    }
+    },
+    "python.pythonPath": "/usr/bin/python3"
 }
