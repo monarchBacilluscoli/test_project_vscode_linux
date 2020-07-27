@@ -121,6 +121,28 @@ vector<TreeNode *> generateTrees(int n)
     return generateTrees_(nums, 0, n);
 }
 
+bool isValidBST_(TreeNode *root, int upper, int lower)
+{
+    if (!root)
+    {
+        return true;
+    }
+    if (root->val <= lower)
+    {
+        return false;
+    }
+    if (root->val >= upper)
+    {
+        return false;
+    }
+    return isValidBST_(root->left, root->val, lower) && isValidBST_(root->right, upper, root->val);
+}
+
+bool isValidBST(TreeNode *root)
+{
+    return isValidBST_(root, numeric_limits<int>::max(), numeric_limits<int>::lowest());
+}
+
 int main()
 {
     // ListNode *p = new ListNode(1);
