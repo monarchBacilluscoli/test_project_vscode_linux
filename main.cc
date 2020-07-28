@@ -12,153 +12,68 @@
 #include <stack>
 #include <unordered_set>
 #include <set>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <thread>
+#include <string.h>
 
-#include "test_function.h"
+// #include "test_function.h"
 
-using namespace std;
-struct ListNode
-{
-    int val;
-    ListNode *next;
-    ListNode(int x) : val(x), next(NULL) {}
-};
-
-struct TreeNode
-{
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode() : val(0), left(nullptr), right(nullptr) {}
-    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
-    TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
-};
-
-ListNode *mergeKLists(std::vector<ListNode *> &lists)
-{
-    std::multimap<int, ListNode *> sorted_map;
-    ListNode *result = new ListNode(0), *p = result;
-    for (int i = 0; i < lists.size(); ++i)
-    {
-        if (lists[i])
-        {
-            sorted_map.insert({lists[i]->val, lists[i]});
-        }
-    }
-
-    while (!sorted_map.empty())
-    {
-        //todo 出一个
-        p->next = sorted_map.begin()->second;
-        sorted_map.erase(sorted_map.begin());
-        p = p->next;
-        //todo 进一个
-        if (p->next)
-        {
-            sorted_map.insert({p->next->val, p->next});
-        }
-    }
-    return result;
-}
-
-vector<TreeNode *> generateTrees_(const std::vector<int> &nums, int start, int size) //左闭又开区间
-{
-    vector<TreeNode *> results(0);
-    if (size <= 0)
-    {
-        return results;
-    }
-    else if (size == 1)
-    {
-        results.push_back(new TreeNode(nums[start]));
-        return results;
-    }
-    else
-    {
-        for (int i = start; i < start + size; ++i)
-        {
-            vector<TreeNode *> lefts = generateTrees_(nums, start, i - start);
-            vector<TreeNode *> rights = generateTrees_(nums, i + 1, size - (i - start) - 1);
-            if (!lefts.empty() && !rights.empty())
-            {
-                for (int j = 0; j < lefts.size(); ++j) //todo 排列组合，哪怕是0也有null
-                {
-                    for (int k = 0; k < rights.size(); ++k)
-                    {
-                        TreeNode *root = new TreeNode(nums[i]);
-                        root->left = lefts[j];
-                        root->right = rights[k];
-                        results.push_back(root);
-                    }
-                }
-            }
-            else if (lefts.empty())
-            {
-                for (int k = 0; k < rights.size(); ++k)
-                {
-                    TreeNode *root = new TreeNode(nums[i]);
-                    root->right = rights[k];
-                    results.push_back(root);
-                }
-            }
-            else if (rights.empty())
-            {
-                for (int j = 0; j < lefts.size(); ++j)
-                {
-                    TreeNode *root = new TreeNode(nums[i]);
-                    root->left = lefts[j];
-                    results.push_back(root);
-                }
-            }
-        }
-        return results;
-    }
-}
-
-vector<TreeNode *> generateTrees(int n)
-{
-    std::vector<int> nums(n);
-    std::iota(nums.begin(), nums.end(), 1);
-    return generateTrees_(nums, 0, n);
-}
-
-bool isValidBST_(TreeNode *root, int upper, int lower)
-{
-    if (!root)
-    {
-        return true;
-    }
-    if (root->val <= lower)
-    {
-        return false;
-    }
-    if (root->val >= upper)
-    {
-        return false;
-    }
-    return isValidBST_(root->left, root->val, lower) && isValidBST_(root->right, upper, root->val);
-}
-
-bool isValidBST(TreeNode *root)
-{
-    return isValidBST_(root, numeric_limits<int>::max(), numeric_limits<int>::lowest());
-}
+// using namespace std;
 
 int main()
 {
-    // ListNode *p = new ListNode(1);
-    // p->next = new ListNode(2);
-    // p->next->next = new ListNode(3);
-    // p->next->next->next = new ListNode(4);
+    int port = 4500;
+    int server_fd;
+    int new_socket;
+    int opt = 1;
+    sockaddr_in address;
+    int addrlen = sizeof(address);
+    int valread;
+    char buffer[1024] = {0};
+    std::string s = "Hi first client";
+    char *hello = "Hello from server";
 
-    auto results = generateTrees(3);
+    if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0)
+    {
+        std::cout << "socket failed" << std::endl;
+    }
+    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt)))
+    {
+        std::cout << "setsockopt failed" << std::endl;
+    }
 
-    // p = swapPairs(p);
-    // while (p)
-    // {
-    //     std::cout << p->val << '\t';
-    //     p = p->next;
-    // }
-    // std::cout << std::endl;
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = INADDR_ANY;
+    address.sin_port = htons(port);
+
+    if (bind(server_fd, (sockaddr *)&address, sizeof(address)) < 0) // 将创建的socket绑定在对应的地址和端口
+    {
+        std::cout << "bind failed" << std::endl;
+    }
+
+    if (listen(server_fd, 3) < 0) // 监听，3是负载的最大长度
+    {
+        std::cout << "listen failed" << std::endl;
+    }
+    if ((new_socket = accept(server_fd, (sockaddr *)(&address), (socklen_t *)&(addrlen)) < 0)) // 接收并创建新套接字
+    {
+        std::cout << "accept failed" << std::endl;
+    }
+    else
+    {
+        std::cout << "accept!" << std::endl;
+    }
+
+    // std::this_thread::sleep_for(std::chrono::seconds(5));
+    // std::cout << "okk" << std::endl;
+
+    valread = read(new_socket, buffer, 1024);
+    std::cout << std::string(buffer) << std::endl;
+
+    send(new_socket, hello, strlen(hello), 0);
+    std::cout << "Server msg sent" << std::endl;
 
     return 0;
 }
