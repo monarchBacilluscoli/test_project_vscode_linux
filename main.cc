@@ -1,38 +1,164 @@
+
+#include <string>
+#include <unordered_map>
 #include <iostream>
-#include <map>
-#include <string>
-#include <typeinfo>
-#include <limits>
-#include <math.h>
 #include <vector>
-#include <list>
-#include <algorithm>
-#include <functional>
+#include <math.h>
 #include <numeric>
+#include <limits>
+#include <algorithm>
+#include <random>
+#include <map>
+#include <stack>
 #include <unordered_set>
-#include <string>
+#include <set>
+
+#include "test_function.h"
 
 using namespace std;
-
-std::vector<int> counts;
-int numTrees(int n)
+struct ListNode
 {
-    counts.resize(n + 1); // 确定记录表的长度
-    counts[0] = 1;
-    counts[1] = 1;
+    int val;
+    ListNode *next;
+    ListNode(int x) : val(x), next(NULL) {}
+};
 
-    for (int i = 2; i < n + 1; ++i) // 从小到大递推所有结果
+struct TreeNode
+{
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode() : val(0), left(nullptr), right(nullptr) {}
+    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+    TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+};
+
+ListNode *mergeKLists(std::vector<ListNode *> &lists)
+{
+    std::multimap<int, ListNode *> sorted_map;
+    ListNode *result = new ListNode(0), *p = result;
+    for (int i = 0; i < lists.size(); ++i)
     {
-        for (int j = 0; j < i; j++) // 选择第j个数作为根节点（分割）//! 注意分割的点可以到i点
+        if (lists[i])
         {
-            counts[i] += counts[j] * counts[i - j - 1]; // 左手是j个节点的二叉树，右手是i-j个节点的二叉树 //! 注意左边和右边的和为i-1
+            sorted_map.insert({lists[i]->val, lists[i]});
         }
     }
-    return counts[n];
+
+    while (!sorted_map.empty())
+    {
+        //todo 出一个
+        p->next = sorted_map.begin()->second;
+        sorted_map.erase(sorted_map.begin());
+        p = p->next;
+        //todo 进一个
+        if (p->next)
+        {
+            sorted_map.insert({p->next->val, p->next});
+        }
+    }
+    return result;
 }
 
-int main(int argc, char *argv[])
+vector<TreeNode *> generateTrees_(const std::vector<int> &nums, int start, int size) //左闭又开区间
 {
-    std::cout << numTrees(3) << std::endl;
+    vector<TreeNode *> results(0);
+    if (size <= 0)
+    {
+        return results;
+    }
+    else if (size == 1)
+    {
+        results.push_back(new TreeNode(nums[start]));
+        return results;
+    }
+    else
+    {
+        for (int i = start; i < start + size; ++i)
+        {
+            vector<TreeNode *> lefts = generateTrees_(nums, start, i - start);
+            vector<TreeNode *> rights = generateTrees_(nums, i + 1, size - (i - start) - 1);
+            if (!lefts.empty() && !rights.empty())
+            {
+                for (int j = 0; j < lefts.size(); ++j) //todo 排列组合，哪怕是0也有null
+                {
+                    for (int k = 0; k < rights.size(); ++k)
+                    {
+                        TreeNode *root = new TreeNode(nums[i]);
+                        root->left = lefts[j];
+                        root->right = rights[k];
+                        results.push_back(root);
+                    }
+                }
+            }
+            else if (lefts.empty())
+            {
+                for (int k = 0; k < rights.size(); ++k)
+                {
+                    TreeNode *root = new TreeNode(nums[i]);
+                    root->right = rights[k];
+                    results.push_back(root);
+                }
+            }
+            else if (rights.empty())
+            {
+                for (int j = 0; j < lefts.size(); ++j)
+                {
+                    TreeNode *root = new TreeNode(nums[i]);
+                    root->left = lefts[j];
+                    results.push_back(root);
+                }
+            }
+        }
+        return results;
+    }
+}
+
+vector<TreeNode *> generateTrees(int n)
+{
+    std::vector<int> nums(n);
+    std::iota(nums.begin(), nums.end(), 1);
+    return generateTrees_(nums, 0, n);
+}
+
+bool isValidBST_(TreeNode *root, int upper, int lower)
+{
+    if (!root)
+    {
+        return true;
+    }
+    if (root->val <= lower)
+    {
+        return false;
+    }
+    if (root->val >= upper)
+    {
+        return false;
+    }
+    return isValidBST_(root->left, root->val, lower) && isValidBST_(root->right, upper, root->val);
+}
+
+bool isValidBST(TreeNode *root)
+{
+    return isValidBST_(root, numeric_limits<int>::max(), numeric_limits<int>::lowest());
+}
+
+int main()
+{
+    // ListNode *p = new ListNode(1);
+    // p->next = new ListNode(2);
+    // p->next->next = new ListNode(3);
+    // p->next->next->next = new ListNode(4);
+
+    auto results = generateTrees(3);
+
+    // p = swapPairs(p);
+    // while (p)
+    // {
+    //     std::cout << p->val << '\t';
+    //     p = p->next;
+    // }
+    // std::cout << std::endl;
+
     return 0;
 }

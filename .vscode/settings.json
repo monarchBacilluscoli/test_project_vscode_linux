@@ -1,4 +1,4 @@
-{
+{ // 自动生成，无需修改
     "files.associations": {
         "cctype": "cpp",
         "clocale": "cpp",
@@ -43,6 +43,10 @@
         "functional": "cpp",
         "iterator": "cpp",
         "numeric": "cpp",
-        "list": "cpp"
-    }
+        "list": "cpp",
+        "random": "cpp",
+        "unordered_set": "cpp",
+        "set": "cpp"
+    },
+    "python.pythonPath": "/usr/bin/python3"
 }
