@@ -14,38 +14,25 @@
 
 using namespace std;
 
-string longestCommonPrefix(vector<string> &strs)
+std::vector<int> counts;
+int numTrees(int n)
 {
-    if (strs.size() == 0)
+    counts.resize(n + 1); // 确定记录表的长度
+    counts[0] = 1;
+    counts[1] = 1;
+
+    for (int i = 2; i < n + 1; ++i) // 从小到大递推所有结果
     {
-        return "";
-    }
-    if (strs.size() == 1)
-    {
-        return strs.front();
-    }
-    string prefix = "";
-    bool eq = true;
-    int comp_index = 0;
-    
-    while (eq)
-    {
-        char comp_char = strs[0][comp_index];
-        for (int i = 1; i < strs.size(); i++)
+        for (int j = 0; j < i; j++) // 选择第j个数作为根节点（分割）//! 注意分割的点可以到i点
         {
-            if (strs[i][comp_index] != comp_char)
-            {
-                eq = false;
-                break;
-            }
+            counts[i] += counts[j] * counts[i - j - 1]; // 左手是j个节点的二叉树，右手是i-j个节点的二叉树 //! 注意左边和右边的和为i-1
         }
-        comp_index++;
     }
+    return counts[n];
 }
 
 int main(int argc, char *argv[])
 {
-    std::vector<string> v = {"flower", "flow", "flight"};
-    std::cout << longestCommonPrefix(v) << std::endl;
+    std::cout << numTrees(3) << std::endl;
     return 0;
 }
