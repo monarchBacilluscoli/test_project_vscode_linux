@@ -151,8 +151,9 @@ int main(int argc, char **argv)
     // p->next->next->next = new ListNode(4);
 
     // auto results = generateTrees(3);
-    
+
     Leetcode lc;
+    auto r = lc.isMatch("", "*");
     // TreeNode *root = new TreeNode(1);
     // root->right = new TreeNode(2);
     // root->right->left = new TreeNode(3);

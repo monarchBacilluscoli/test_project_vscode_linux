@@ -87,6 +87,70 @@ private:
     // }
 
 public:
+    bool isMatch(std::string s, std::string p)
+    {
+        size_t m = s.size(), n = p.size();
+        std::vector<std::vector<bool>> dp{m + 1, std::vector<bool>(n + 1)};
+
+        dp[0][0] = true;
+
+        for (int i = 1; i <= m; ++i)
+        {
+            dp[i][0] = false;
+        }
+        for (int j = 1; j <= n; ++j)
+        {
+            if (p[j - 1] == '*' && dp[0][j - 1])
+            {
+                dp[0][j] = true;
+            }
+            else
+            {
+                dp[0][j] = false;
+            }
+        }
+
+        for (int i = 0; i < m; ++i)
+        {
+            for (int j = 0; j < n; ++j)
+            {
+                if (p[j] <= 'z' && p[j] >= 'a')
+                {
+                    if (p[j] == s[i] && dp[i][j])
+                    {
+                        dp[i + 1][j + 1] = true;
+                    }
+                    else
+                    {
+                        dp[i + 1][j + 1] = false;
+                    }
+                }
+                else if (p[j] == '?')
+                {
+                    if (dp[i][j])
+                    {
+                        dp[i + 1][j + 1] = true;
+                    }
+                    else
+                    {
+                        dp[i + 1][j + 1] = false;
+                    }
+                }
+                else if (p[j] == '*')
+                {
+                    if (dp[i][j] || dp[i][j + 1] || dp[i + 1][j])
+                    {
+                        dp[i + 1][j + 1] = true;
+                    }
+                    else
+                    {
+                        dp[i + 1][j + 1] = false;
+                    }
+                }
+            }
+        }
+        return dp[m][n];
+    }
     // std::vector<int> postorderTraversal(TreeNode *root)
     // {
     //     if (!root)
