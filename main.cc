@@ -23,15 +23,15 @@ struct ListNode
     ListNode(int x) : val(x), next(NULL) {}
 };
 
-struct TreeNode
-{
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode() : val(0), left(nullptr), right(nullptr) {}
-    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
-    TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
-};
+// struct TreeNode
+// {
+//     int val;
+//     TreeNode *left;
+//     TreeNode *right;
+//     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+//     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+//     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+// };
 
 ListNode *mergeKLists(std::vector<ListNode *> &lists)
 {
@@ -143,22 +143,27 @@ bool isValidBST(TreeNode *root)
     return isValidBST_(root, numeric_limits<int>::max(), numeric_limits<int>::lowest());
 }
 
-bool isMatch(std::string s, std::string p)
-{
-    int m = s.size(), n = p.size();
-    std::vector<std::vector<bool>> dp(m + 1, std::vector<bool>(n + 1));
-    dp[0][0] = true;
-    
-}
-
-int main()
+int main(int argc, char **argv)
 {
     // ListNode *p = new ListNode(1);
     // p->next = new ListNode(2);
     // p->next->next = new ListNode(3);
     // p->next->next->next = new ListNode(4);
 
-    auto results = generateTrees(3);
+    // auto results = generateTrees(3);
+
+    Leetcode lc;
+    auto r = lc.isMatch("", "*");
+    // TreeNode *root = new TreeNode(1);
+    // root->right = new TreeNode(2);
+    // root->right->left = new TreeNode(3);
+    // auto a = lc.postorderTraversal(root);
+
+    // std::vector<int> v = {3, 4, 5, 1, 2};
+    // auto a = lc.findMin(v);
+    // std::vector<std::vector<int>> grid = {{1, 0, 0, 0}, {1, 1, 1, 0}};
+    // std::vector<std::vector<int>> hits = {{1, 1}, {1, 0}};
+    // auto b = lc.hitBricks(grid, hits);
 
     // p = swapPairs(p);
     // while (p)
