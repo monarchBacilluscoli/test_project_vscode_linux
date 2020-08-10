@@ -151,6 +151,27 @@ public:
         }
         return dp[m][n];
     }
+
+    int maxSubArray(std::vector<int> &nums)
+    {
+        int sz = nums.size();
+        std::vector<std::vector<int>> dp(sz, std::vector<int>(sz));
+        dp[0][0] = nums[0];
+        int max = dp[0][0];
+        for (int i = 0; i < sz; ++i)
+        {
+            for (int j = i; j < sz; ++j)
+            {
+                dp[i][j] = dp[i][j - 1] + nums[j];
+                if (dp[i][j] > max)
+                {
+                    max = dp[i][j];
+                }
+            }
+        }
+        return max;
+    }
+
     // std::vector<int> postorderTraversal(TreeNode *root)
     // {
     //     if (!root)
