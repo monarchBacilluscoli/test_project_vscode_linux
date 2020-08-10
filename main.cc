@@ -152,8 +152,9 @@ int main(int argc, char **argv)
 
     // auto results = generateTrees(3);
 
+    std::vector<int> vec{1,2,3,4,5};
     Leetcode lc;
-    auto r = lc.isMatch("", "*");
+    auto r = lc.maxSubArray(vec);
     // TreeNode *root = new TreeNode(1);
     // root->right = new TreeNode(2);
     // root->right->left = new TreeNode(3);
