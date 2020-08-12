@@ -30,8 +30,7 @@ int main()
     // PortChecker ptck2;
     // std::cout << ptck.Check(10000) << std::endl;
 
-
-    int port = 10000;
+    int port = 45000;
     int server_fd;  // 服务器的file descriptor
     int new_socket; //
     int opt = 1;
@@ -55,7 +54,7 @@ int main()
     address.sin_addr.s_addr = INADDR_ANY; // 因为将IP绑定到本机，所以使用了INADDR_ANY(0.0.0.0)指定了IP
     address.sin_port = htons(port);       // 将unsigned short integer hostshort from host byte order to network byte order 即从本机可能是小端的字节序转换成网络字节序（大端）
 
-    if (bind(server_fd, (sockaddr *)&address, sizeof(address)) < 0) // 将创建的socket绑定在对应的地址和端口
+    if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0) // 将创建的socket绑定在对应的地址和端口
     {
         std::cout << "bind failed" << std::endl;
     }
@@ -64,7 +63,7 @@ int main()
     {
         std::cout << "listen failed" << std::endl;
     }
-    if ((new_socket = accept(server_fd, (sockaddr *)(&address), (socklen_t *)&(addrlen)) < 0)) // 接收并创建新套接字
+    if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t *)&addrlen)) < 0) // 接收并创建新套接字
     {
         std::cout << "accept failed" << std::endl;
     }
