@@ -22,7 +22,7 @@
                     "ignoreFailures": true
                 }
             ],
-            "preLaunchTask": "make the entire project" // 每次编译之前运行一次task.json之中label为"make the entire project"的task
+            "preLaunchTask": "make" // 每次编译之前运行一次task.json之中label为"make the entire project"的task
         }
     ]
 }

@@ -4,12 +4,19 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "make the entire project", // 编译链接整个工程
+            "label": "make",
             "type": "shell",
-            "command": "make", // 使用了make命令
+            "command": "make",
             "args": [
-                "-j" // 允许多线程编译
+                "-j"
             ],
+            "group": "build",
+            "presentation": {
+                // Reveal the output only if unrecognized errors occur.
+                "reveal": "silent"
+            },
+            // Use the standard MS compiler pattern to detect errors, warnings and infos
+            "problemMatcher": "$msCompile",
             "options": {
                 "cwd": "${cwd}/build" // 在“当前工作路径”/build下执行make
             }

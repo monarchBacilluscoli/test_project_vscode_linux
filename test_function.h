@@ -5,6 +5,7 @@
 #include <vector>
 #include <set>
 #include <unordered_set>
+#include <mutex>
 
 struct TreeNode
 {
@@ -218,4 +219,106 @@ public:
 
     Leetcode(/* args */) = default;
     ~Leetcode() = default;
+};
+
+class A
+{
+public:
+    A() { Hi(); }
+    virtual void Hi() { std::cout << "A" << std::endl; }
+    // virtual void Oh() { std::cout << "Oh A" << std::endl; }
+
+    virtual ~A() { Hi(); }
+};
+
+class B : public A
+{
+public:
+    B() { Hi(); }
+    virtual void Hi() { std::cout << "B" << std::endl; }
+    virtual void Oh() { std::cout << "Oh B" << std::endl; }
+    virtual ~B() { Hi(); }
+};
+
+class C : public B
+{
+private:
+    char a = 1;
+
+public:
+    C() { Hi(); }
+    virtual void Hi() { std::cout << "C" << std::endl; }
+    virtual void Oh() { std::cout << "Oh C" << std::endl; }
+    virtual ~C() { Hi(); }
+};
+
+class ReaderWriterProblem
+{
+private:
+    std::vector<int> m_fiction_chapters;
+
+    std::vector<std::thread> m_reader_threads;
+
+    std::thread m_w_thread;
+
+    int m_current_reader_count = 0;
+    std::vector<bool> m_reader_has_read;
+    const int m_total_reader_count;
+
+    std::mutex m_count_mtx;
+    std::mutex m_finction_mtx;
+
+public:
+    ReaderWriterProblem(int reader_count) : m_total_reader_count(reader_count), m_reader_has_read(reader_count){};
+
+    void Run()
+    {
+        for (size_t i = 0; i < m_total_reader_count; ++i)
+        {
+            m_reader_threads.push_back(std::thread(&ReaderWriterProblem::Read, this, i));
+        }
+        Write();
+    }
+
+    void Write()
+    {
+        while (1)
+        {
+            std::lock_guard<std::mutex> lg(m_count_mtx);
+            //写一个章节
+            std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+            size_t current_chapter = m_fiction_chapters.size();
+            m_fiction_chapters.push_back(current_chapter);
+            std::cout << "chapter " << current_chapter << std::endl;
+        }
+    }
+
+    void Read(int index) //todo 每一个reader不能读第二遍
+    {
+        static int current_chapter = 0;
+        while (1)
+        {
+            m_count_mtx.lock();              //读也敏感的数据，先不要读，先锁
+            if (m_current_reader_count == 0) // 第一个进来拿到数据的先锁上写锁
+            {
+                m_finction_mtx.lock();
+            }
+            ++m_current_reader_count;
+            m_count_mtx.unlock();
+
+            if (current_chapter)
+                std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+            std::cout << m_fiction_chapters.back() << std::endl;
+
+            m_count_mtx.lock(); //读也敏感的数据，先不要读，先锁
+            --m_current_reader_count;
+            if (m_current_reader_count == 0)
+            {
+                m_finction_mtx.unlock();
+            }
+            m_count_mtx.unlock();
+        }
+    }
+
+    ~ReaderWriterProblem();
 };

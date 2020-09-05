@@ -1,4 +1,7 @@
 
+#pragma pack(push)
+#pragma pack(1)
+
 #include <string>
 #include <unordered_map>
 #include <iostream>
@@ -12,167 +15,162 @@
 #include <stack>
 #include <unordered_set>
 #include <set>
+#include <malloc.h>
+#include <semaphore.h>
+#include <pthread.h>
+#include <CivetServer.h>
+#include <thread>
+#include <string.h>
 
 #include "test_function.h"
 
-using namespace std;
-struct ListNode
+sem_t sem;
+
+struct span
 {
-    int val;
-    ListNode *next;
-    ListNode(int x) : val(x), next(NULL) {}
+    unsigned int smin : 16; // 占据16/8=2字节
+    char smax;              // 占据1字节，但是由于压缩，虽然没报错但是取不到地址，去掉的话真的会有11字节的占用
+    unsigned int area : 6;  // 占据（6/8）字节，最终按照对齐为1占据1字节
+    span *next;             // 占据8字节（64位机器）
 };
 
-// struct TreeNode
-// {
-//     int val;
-//     TreeNode *left;
-//     TreeNode *right;
-//     TreeNode() : val(0), left(nullptr), right(nullptr) {}
-//     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
-//     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
-// };
-
-ListNode *mergeKLists(std::vector<ListNode *> &lists)
+void InsertionSort(std::vector<int> &vec)
 {
-    std::multimap<int, ListNode *> sorted_map;
-    ListNode *result = new ListNode(0), *p = result;
-    for (int i = 0; i < lists.size(); ++i)
+    //todo 有序区，无序区
+    //待排序就是i+1
+    size_t sz = vec.size();
+    for (size_t i = 1; i < vec.size(); i++)
     {
-        if (lists[i])
+        size_t wait_for_sorted_index = i;
+        for (size_t j = wait_for_sorted_index - 1; j >= 0; j--)
         {
-            sorted_map.insert({lists[i]->val, lists[i]});
+            if (vec[j] < vec[wait_for_sorted_index])
+            {
+                int swapped_value = vec[wait_for_sorted_index];
+                //todo push the nums on j's right hand
+                for (size_t k = wait_for_sorted_index; k > j + 1; k--)
+                {
+                    vec[k] = vec[k - 1];
+                }
+                vec[j + 1] = swapped_value;
+                //todo insert it at j
+                break;
+            }
         }
     }
-
-    while (!sorted_map.empty())
-    {
-        //todo 出一个
-        p->next = sorted_map.begin()->second;
-        sorted_map.erase(sorted_map.begin());
-        p = p->next;
-        //todo 进一个
-        if (p->next)
-        {
-            sorted_map.insert({p->next->val, p->next});
-        }
-    }
-    return result;
 }
 
-vector<TreeNode *> generateTrees_(const std::vector<int> &nums, int start, int size) //左闭又开区间
+static int handler(struct mg_connection *conn, void *ignored)
 {
-    vector<TreeNode *> results(0);
-    if (size <= 0)
+    std::string msg = "Hello, you guys";
+    size_t len = msg.size();
+
+    mg_printf(conn, "HTTP/1.1 200 OK\r\n"
+                    "Content-Length: %lu\r\n"
+                    "Content-Type: text/plain\r\n"
+                    "Connection: close\r\n\r\n",
+              len);
+
+    mg_write(conn, msg.c_str(), msg.size());
+
+    return 200;
+}
+
+void static_thread_test()
+{
+    static bool called = false;
+
+    if (called)
     {
-        return results;
-    }
-    else if (size == 1)
-    {
-        results.push_back(new TreeNode(nums[start]));
-        return results;
+        std::cout << "it has been called" << std::endl;
+        return;
     }
     else
     {
-        for (int i = start; i < start + size; ++i)
-        {
-            vector<TreeNode *> lefts = generateTrees_(nums, start, i - start);
-            vector<TreeNode *> rights = generateTrees_(nums, i + 1, size - (i - start) - 1);
-            if (!lefts.empty() && !rights.empty())
-            {
-                for (int j = 0; j < lefts.size(); ++j) //todo 排列组合，哪怕是0也有null
-                {
-                    for (int k = 0; k < rights.size(); ++k)
-                    {
-                        TreeNode *root = new TreeNode(nums[i]);
-                        root->left = lefts[j];
-                        root->right = rights[k];
-                        results.push_back(root);
-                    }
-                }
-            }
-            else if (lefts.empty())
-            {
-                for (int k = 0; k < rights.size(); ++k)
-                {
-                    TreeNode *root = new TreeNode(nums[i]);
-                    root->right = rights[k];
-                    results.push_back(root);
-                }
-            }
-            else if (rights.empty())
-            {
-                for (int j = 0; j < lefts.size(); ++j)
-                {
-                    TreeNode *root = new TreeNode(nums[i]);
-                    root->left = lefts[j];
-                    results.push_back(root);
-                }
-            }
-        }
-        return results;
+        std::cout << "calling" << std::endl;
+        called = true;
     }
+
+    return;
 }
 
-vector<TreeNode *> generateTrees(int n)
+const int generation_times = 10;
+thread_local std::vector<int> num_array(generation_times);
+void fill_vec(int start)
 {
-    std::vector<int> nums(n);
-    std::iota(nums.begin(), nums.end(), 1);
-    return generateTrees_(nums, 0, n);
-}
-
-bool isValidBST_(TreeNode *root, int upper, int lower)
-{
-    if (!root)
+    std::iota(num_array.begin(), num_array.end(), start);
+    for (auto &i : num_array)
     {
-        return true;
+        std::cout << i << '\t';
     }
-    if (root->val <= lower)
-    {
-        return false;
-    }
-    if (root->val >= upper)
-    {
-        return false;
-    }
-    return isValidBST_(root->left, root->val, lower) && isValidBST_(root->right, upper, root->val);
-}
-
-bool isValidBST(TreeNode *root)
-{
-    return isValidBST_(root, numeric_limits<int>::max(), numeric_limits<int>::lowest());
+    std::cout << std::endl;
 }
 
 int main(int argc, char **argv)
 {
-    // ListNode *p = new ListNode(1);
-    // p->next = new ListNode(2);
-    // p->next->next = new ListNode(3);
-    // p->next->next->next = new ListNode(4);
+    {
+        fill_vec(1);
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+        std::thread th(fill_vec, 1000);
+        th.join();
+        return 0;
+    }
+    {
+        static_thread_test();
+        std::thread th(static_thread_test);
+        std::this_thread::sleep_for(std::chrono::seconds(3));
+        std::thread th2(static_thread_test);
 
-    // auto results = generateTrees(3);
+        th.join();
+        th2.join();
+        return 0;
+    }
 
-    std::vector<int> vec{1,2,3,4,5};
-    Leetcode lc;
-    auto r = lc.maxSubArray(vec);
-    // TreeNode *root = new TreeNode(1);
-    // root->right = new TreeNode(2);
-    // root->right->left = new TreeNode(3);
-    // auto a = lc.postorderTraversal(root);
+    {
+        struct mg_context *ctx;
 
-    // std::vector<int> v = {3, 4, 5, 1, 2};
-    // auto a = lc.findMin(v);
-    // std::vector<std::vector<int>> grid = {{1, 0, 0, 0}, {1, 1, 1, 0}};
-    // std::vector<std::vector<int>> hits = {{1, 1}, {1, 0}};
-    // auto b = lc.hitBricks(grid, hits);
+        mg_init_library(0);
 
-    // p = swapPairs(p);
-    // while (p)
-    // {
-    //     std::cout << p->val << '\t';
-    //     p = p->next;
-    // }
-    // std::cout << std::endl;
+        ctx = mg_start(NULL, 0, NULL); //我估计从这一句开始服务器就开始执行了。
+
+        mg_set_request_handler(ctx, "/lolipop", handler, (void *)"Hello. I am your lolipop!");
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(30000)); //sleep多久服务器就开放多久，应该有manager线程和worker线程在做事
+
+        mg_stop(ctx);
+
+        mg_exit_library();
+    }
+
+    {
+        std::vector<int> vec = {11, 123, 14, 5, 15, 6, 7, 8, 1123, 689, 9, 1};
+        InsertionSort(vec);
+    }
+
+    {
+        A *a = new C();
+        auto *b = static_cast<B *>(a);
+        b->Oh();
+        delete a;
+    }
+
+    std::cout << "size\t" << sizeof(span) << std::endl;
+    span s;
+    std::cout << "&\t" << &s << std::endl;
+    // std::cout << "&smin\t" << &(a.smin) << std::endl;
+    std::cout << "&smax\t" << &(s.smax) << std::endl;
+    // std::cout << "&area\t" << &(a.area) << std::endl;
+    std::cout << "&next\t" << &(s.next) << std::endl;
+
+    int *a = new int[10];
+    auto a_size = malloc_usable_size(a);
+
+    int *b = new int(6226);
+    auto b_size = malloc_usable_size(b);
+
+    auto int_size = sizeof(int);
 
     return 0;
 }
+
+#pragma pack(pop)
