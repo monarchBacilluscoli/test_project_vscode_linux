@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <iostream>
 #include <vector>
+#include <mutex>
 // #include <math.h>
 #include <numeric>
 #include <limits>
@@ -19,7 +20,8 @@
 // #include <semaphore.h>
 // #include <pthread.h>
 // #include <CivetServer.h>
-// #include <thread>
+#include <thread>
+#include <future>
 // #include <string.h>
 #include <list>
 #include <map>
@@ -32,8 +34,50 @@ const std::vector<std::pair<int, int>> g_directions = {
     {0, -1},
     {-1, 0}};
 
+std::mutex mtx;
+
+int func()
+{
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+    std::cout << __FUNCTION__ << std::endl;
+    return 444;
+}
+
+void print_v(int &a)
+{
+    std::cout << a << std::endl;
+}
+
 int main(int argc, char **argv)
 {
+    {
+        const int a = 100;
+        const int *b = &a;
+        // print_v()
+        int *c = const_cast<int *>(b);
+        // print_v(b);
+        // print_v();
+        *c = 101;
+        return 0;
+    }
+
+    {
+        std::future<int> f = std::async(std::launch::async, func);
+        f.wait();
+        std::cout << f.get() << std::endl;
+        f.wait();
+        std::cout << f.get() << std::endl;
+    }
+
+    {
+        mtx.lock();
+
+        mtx.lock();
+
+        std::cout << "it can be locked twice" << std::endl;
+
+        mtx.unlock();
+    }
     int data_size;
     std::cin >> data_size;
     for (size_t i = 0; i < data_size; ++i)
