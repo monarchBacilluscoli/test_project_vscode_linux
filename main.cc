@@ -9,13 +9,14 @@ void Thrower()
     try
     {
         std::cout << "before calling@" + std::string(__FUNCTION__) << std::endl;
-        throw(std::range_error("an error!"));
+        throw(std::runtime_error("an error!"));
         std::cout << "after calling@" + std::string(__FUNCTION__) << std::endl;
     }
     catch (const std::bad_cast &e)
     {
         std::cerr << e.what() << '\n';
     }
+    return;
 }
 
 void Caller()
@@ -26,23 +27,32 @@ void Caller()
         Thrower();
         std::cout << "after calling@" + std::string(__FUNCTION__) << std::endl;
     }
-    catch (const std::runtime_error &e)
+    catch (const std::bad_typeid &e)
     {
         std::cerr << e.what() << '\n';
     }
     std::cout << "after catch@" + std::string(__FUNCTION__) << std::endl;
+    return;
 }
 
 //todo test1: multithread exception - can main thread catch the exception from child thread
 //todo test2: after catch - which statement in which layer will be executed
 int main(int argc, char **argv)
 {
-    Caller(); /* The output:
+    try
+    {
+        std::future<void> ft = std::async(std::launch::async, Caller);
+    }
+    catch (const std::exception &e) // 捕获任何异常
+    {
+        std::cerr << e.what() << '\n';
+    }
+    std::cout << "after calling@" + std::string(__FUNCTION__) << std::endl;
+    /* the logic is the same: 程序将会从catch到的那个catch之后继续运行，也就是说整个thread直接消失。输出:
     before calling@Caller
     before calling@Thrower
-    an error!
-    after catch@Caller
+    after calling@main
     */
-              //也就是说控制流会从真正catch了这个异常的那个catch之后继续运行，而不是从throw的位置继续运行，也不是从catch的那一层的throw出来的位置继续运行。
+
     return 0;
 }
