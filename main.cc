@@ -1,106 +1,78 @@
 
-// #pragma pack(push)
-// #pragma pack(1)
-
 #include <string>
-#include <unordered_map>
 #include <iostream>
 #include <vector>
-#include <mutex>
-// #include <math.h>
-#include <numeric>
-#include <limits>
-#include <algorithm>
-#include <random>
-#include <map>
-#include <stack>
-#include <unordered_set>
-#include <set>
-// #include <malloc.h>
-// #include <semaphore.h>
-// #include <pthread.h>
-// #include <CivetServer.h>
-#include <thread>
-#include <future>
-// #include <string.h>
-#include <list>
-#include <map>
 
-// #include "test_function.h"
-
-int PasswordCheck(const std::string &pwd)
+// from (i,j) check word[w];
+bool extend(std::vector<std::vector<char>> &mtx, const std::string &word, int i, int j, int w)
 {
-    //todo 长度 8-120
-
-    size_t sz = pwd.size();
-    if (sz > 120 || sz < 8)
+    int x_sz = mtx.front().size(), y_sz = mtx.size();
+    if (i < 0 || j < 0 || i >= y_sz || j >= x_sz)
     {
-        return 1;
+        return false;
     }
-
-    bool has_int = false, has_char = false, has_upper = false, has_lower = false;
-
-    //todo 类型：数字，符号，大写，小写
-    for (size_t i = 0; i < sz; ++i)
+    else
     {
-        char c = pwd[i];
-        if (c <= 57 && c >= 48)
+        // if all the checks from here false, set the value to 0;
+        if (word[w] == mtx[i][j])
         {
-            if (!has_int)
+            if (w == word.size() - 1)
             {
-                has_int = true;
+                return true;
             }
-        }
-        else if (c <= 90 && c >= 65)
-        {
-            if (!has_upper)
+            else
             {
-                has_upper = true;
-            }
-        }
-        else if (c <= 122 && c >= 97)
-        {
-            if (!has_lower)
-            {
-                has_lower = true;
+                mtx[i][j] = 0;
+                if (extend(mtx, word, i - 1, j, w + 1) ||
+                    extend(mtx, word, i + 1, j, w + 1) ||
+                    extend(mtx, word, i, j - 1, w + 1) ||
+                    extend(mtx, word, i, j + 1, w + 1))
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
         }
         else
         {
-            if (!has_char)
+            return false;
+        }
+    }
+}
+std::vector<std::vector<char>> g_matrix = {
+    {'A', 'B', 'C', 'E'},
+    {'S', 'F', 'C', 'S'},
+    {'A', 'D', 'E', 'E'}};
+
+bool WordCheck(const std::vector<std::vector<char>> &board, const std::string &word)
+{
+    int x_sz = board.front().size(), y_sz = board.size();
+    for (size_t i = 0; i < y_sz; ++i)
+    {
+        for (size_t j = 0; j < x_sz; ++j)
+        {
+            std::vector<std::vector<char>> bd = board;
+            if (extend(bd, word, i, j, 0))
             {
-                has_char = true;
+                return true;
             }
         }
     }
-    if (has_char && has_int && has_lower && has_upper)
-    {
-        return 0;
-    }
-    else
-    {
-        return 2;
-    }
+
+    return false;
 }
 
 int main(int argc, char **argv)
 {
-    std::vector<std::string> ss;
+    std::cout << 79 / 20 << std::endl;
+
     std::string s;
+    std::cin >> s;
 
-    while (std::cin >> s)
-    {
-        ss.emplace_back(s);
-        if (std::cin.peek() == '\n')
-        {
-            break;
-        }
-    }
-
-    for (const auto &s : ss)
-    {
-        std::cout << PasswordCheck(s) << std::endl;
-    }
+    std::cout << (WordCheck(g_matrix, s) ? "true" : "false") << std::endl;
 
     return 0;
 }
