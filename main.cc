@@ -1,182 +1,90 @@
-#include <arpa/inet.h>
-#include <sys/fcntl.h>
 
-#include <string>
 #include <iostream>
 #include <vector>
-#include <future>
-#include <stdio.h>
-#include <math.h>
-#include <future>
-#include <unistd.h>
-#include <string.h>
+#include <map>
 
-#include "test_function.h"
-
-
-void Caller()
+enum Dir
 {
-    try
+    UP,
+    DOWN,
+    LEFT,
+    RIGHT
+};
+const std::map<Dir, std::pair<int, int>> dirs{{Dir::UP, {-1, 0}}, {Dir::DOWN, {1, 0}}, {Dir::LEFT, {0, -1}}, {Dir::RIGHT, {0, 1}}};
+
+void GenerateAToZMtx(std::vector<std::vector<char>> &mtx)
+{
+    int n = static_cast<int>(mtx.front().size()), m = static_cast<int>(mtx.size()); // m行n列
+    int end_x_b = m - 1, end_y_b = n - 1, end_x_t = 1, end_y_t = 0;
+
+    Dir current_dir = Dir::RIGHT;
+    int x = 0, y = 0;
+    char current_char = 'A';
+    while ((end_x_b >= end_x_t || end_y_b >= end_y_t) && x >= 0 && y >= 0 && x < m && y < n)
     {
-        std::cout << "before calling@" + std::string(__FUNCTION__) << std::endl;
-        Thrower();
-        std::cout << "after calling@" + std::string(__FUNCTION__) << std::endl;
+        mtx[x][y] = current_char;
+
+        switch (current_dir) // 檢查是否hit終點
+        {
+        case Dir::RIGHT:
+            if (y >= end_y_b)
+            {
+                current_dir = Dir::DOWN;
+                --end_y_b;
+            }
+            break;
+        case Dir::LEFT:
+            if (y <= end_y_t)
+            {
+                current_dir = Dir::UP;
+                ++end_y_t;
+            }
+            break;
+        case Dir::UP:
+            if (x <= end_x_t)
+            {
+                current_dir = Dir::RIGHT;
+                ++end_x_t;
+            }
+            break;
+        case Dir::DOWN:
+            if (x >= end_x_b)
+            {
+                current_dir = Dir::LEFT;
+                --end_x_b;
+            }
+            break;
+        default:
+            throw(std::runtime_error("no dir"));
+        }
+        x += (dirs.at(current_dir).first);
+        y += (dirs.at(current_dir).second);
+        current_char == 'Z' ? (current_char = 'A') : (current_char++);
     }
-    catch (const std::bad_typeid &e)
-    {
-        std::cerr << e.what() << '\n';
-    }
-    std::cout << "after catch@" + std::string(__FUNCTION__) << std::endl;
-    return;
 }
 
-struct TwoInts
-{
-    int a, b;
-};
-
-//todo test1: multithread exception - can main thread catch the exception from child thread
-//todo test2: after catch - which statement in which layer will be executed
 int main(int argc, char **argv)
 {
+    int m, n;
+    std::cin >> m >> n;
+
+    if (m == 0 || n == 0)
     {
-        void *start = sbrk(0);
-        std::cout << sizeof(unsigned long int) << std::endl;
-        std::cout << start << std::endl;
-        unsigned long int *a = (unsigned long *)sbrk(0);
-        std::cout << sbrk(8) << std::endl;
-        void *end = sbrk(0);
-        memset(end - 1, 0xFF, 1);
-        std::cout << *a << std::endl;
         return 0;
     }
+
+    std::vector<std::vector<char>> mtx(m, std::vector<char>(n));
+
+    GenerateAToZMtx(mtx);
+
+    for (auto &&i : mtx)
     {
-        A a;
-        int test_number = 12241251;
-        // bool odd = false;
-        std::chrono::high_resolution_clock::time_point start = std::chrono::high_resolution_clock::now();
-        for (size_t i = 0; i < 1000000; ++i)
+        for (auto &&j : i)
         {
-            if (test_number % 2 == 1)
-            {
-                ;
-            }
+            std::cout << j << ' ' << std::flush;
         }
-        std::chrono::high_resolution_clock::time_point end = std::chrono::high_resolution_clock::now();
-        std::cout << "%: " << (std::chrono::duration_cast<std::chrono::microseconds>(end - start)).count() << std::endl;
-        start = std::chrono::high_resolution_clock::now();
-        for (size_t i = 0; i < 1000000; ++i)
-        {
-            if (test_number & 1 == 1)
-            {
-                ;
-            }
-        }
-        end = std::chrono::high_resolution_clock::now();
-        std::cout << "&: " << (std::chrono::duration_cast<std::chrono::microseconds>(end - start)).count() << std::endl;
-        return 0;
+        std::cout << std::endl;
     }
-    {
-        // to see if file descriptor is the sam as socket file descriptor.
-        int a;
-        if ((a = open("/home/liuyongfeng/microsoft.gpg", O_RDONLY)) < 0)
-        {
-            perror("?");
-        }
-        auto b = socket(AF_INET, SOCK_STREAM, 0);
-        return 0;
-    }
-    {
-        int a = 1;
-        std::future<void> f = std::async([&]() -> void { a = 11; });
-        std::cout << a << std::endl;
-        return 0;
-    }
-    {
-        auto a = ceil(4 / 2);
-        return 0;
-    }
-    {
-        while (1)
-        {
-            uint16_t i;
-            std::cin >> i;
-            std::cout << ntohs(i) << std::endl;
-        }
-        return 0;
-    }
-
-    {
-        int a = 2;
-        float b = 15;
-        std::cout << b / a << std::endl;
-        return 0;
-    }
-    {
-        std::cout << -10 / int(size_t(2)) << std::endl;
-        return 0;
-    }
-    {
-        int a = 0;
-        std::thread t1([&a]() -> void {
-            a = 1;
-        });
-        t1.join();
-        std::thread
-        t2([&a]() -> void {
-            a = 2;
-        });
-
-        t2.join();
-        return 0;
-    }
-
-    if (0)
-    {
-        char s[] = "this is a static string";
-        std::cout << s << std::endl;
-        return 0;
-    }
-
-    {
-        std::cout << "hhh" << std::endl;
-        char *log = nullptr;
-        std::cout << log << std::endl;
-        int sz = asprintf(&log, "Hello, %s, my old friends", "HHH");
-        auto a = std::string(log);
-        std::cout << a << std::endl
-                  << std::flush;
-        printf("%s", log);
-        std::cout
-            << *log << std::endl;
-        free(log);
-        return 0;
-    }
-
-    {
-        char *p = new char[8];
-        p[0] = 'a';
-        p[4] = 'b';
-        struct TwoInts *p2 = (TwoInts *)(p);
-        std::cout << p2->a << std::endl;
-        std::cout << p2->b << std::endl;
-        return 0;
-    }
-
-    try
-    {
-        std::future<void> ft = std::async(std::launch::async, Caller);
-    }
-    catch (const std::exception &e) // 捕获任何异常
-    {
-        std::cerr << e.what() << '\n';
-    }
-    std::cout << "after calling@" + std::string(__FUNCTION__) << std::endl;
-    /* the logic is the same: 程序将会从catch到的那个catch之后继续运行，也就是说整个thread直接消失。输出:
-    before calling@Caller
-    before calling@Thrower
-    after calling@main
-    */
 
     return 0;
 }
