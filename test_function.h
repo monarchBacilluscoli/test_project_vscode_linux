@@ -6,6 +6,7 @@
 #include <set>
 #include <unordered_set>
 #include <mutex>
+#include <thread>
 
 struct TreeNode
 {
@@ -225,8 +226,8 @@ class A
 {
 public:
     A() { Hi(); }
-    virtual void Hi() { std::cout << "A" << std::endl; }
-    // virtual void Oh() { std::cout << "Oh A" << std::endl; }
+    virtual void Hi();
+    virtual void Oh() { std::cout << "Oh A" << std::endl; }
 
     virtual ~A() { Hi(); }
 };

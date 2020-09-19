@@ -56,5 +56,5 @@
         "mutex": "cpp",
         "future": "cpp"
     },
-    "python.pythonPath": "/usr/bin/python3"
+    "python.pythonPath": "/home/liuyongfeng/miniconda3/bin/python"
 }

@@ -5,10 +5,17 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal"
+        },
+        {
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/first_project",    // 编译好的待debug程序
+            "program": "${workspaceFolder}/build/first_project", // 编译好的待debug程序
             "args": [], // 可输入运行参数
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}", // 当前工作路径（linux命令行命令之前显示的路径）
