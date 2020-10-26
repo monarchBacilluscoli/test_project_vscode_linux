@@ -54,7 +54,9 @@
         "ctime": "cpp",
         "ratio": "cpp",
         "mutex": "cpp",
-        "future": "cpp"
+        "future": "cpp",
+        "cstring": "cpp",
+        "bitset": "cpp"
     },
     "python.pythonPath": "/home/liuyongfeng/miniconda3/bin/python"
 }
